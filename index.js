@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // Middle Wares //
 app.use(cors());
@@ -17,8 +17,26 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 // MongoDB Collection //
 async function run() {
+    const postCollection = client.db('socia-buzz').collection('post')
     try {
-        
+        app.get("/post", async (req, res) => {
+            const query = {};
+            const cursor = await postCollection.find(query);
+            const posts = await cursor.toArray();
+            const reverseArray = posts.reverse();
+            res.send(reverseArray);
+        });
+        app.post("/post", async (req, res) => {
+            const items = req.body;
+            const result = await postCollection.insertOne(items);
+            res.send(result);
+        });
+        app.get("/post", async (req, res) => {
+            const id = req.query.id;
+            const query = { _id: ObjectId(id) };
+            const cursor = await postCollection.find(query).toArray();;
+            res.send(cursor);
+        });
     }
     finally {
 
