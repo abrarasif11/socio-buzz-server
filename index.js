@@ -18,6 +18,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 // MongoDB Collection //
 async function run() {
     const postCollection = client.db('socia-buzz').collection('post')
+    const likesCollection = client.db('socia-buzz').collection('like')
     try {
         app.get("/post", async (req, res) => {
             const query = {};
@@ -35,6 +36,17 @@ async function run() {
             const id = req.query.id;
             const query = { _id: ObjectId(id) };
             const cursor = await postCollection.find(query).toArray();;
+            res.send(cursor);
+        });
+        app.post("/like", async (req, res) => {
+            const items = req.body;
+            const result = await likesCollection.insertOne(items);
+            res.send(result);
+        });
+        app.get("/like", async (req, res) => {
+            const id = req.query.id;
+            const query = { _id: ObjectId(id) };
+            const cursor = await likesCollection.find(query).toArray();;
             res.send(cursor);
         });
     }
